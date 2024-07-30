@@ -16,6 +16,9 @@ class Book(models.Model):
     inventory = models.IntegerField()
     daily_fee = models.DecimalField(max_digits=10, decimal_places=2)
 
+    def __str__(self):
+        return self.name
+
 
 class CustomUser(User):
     pass
@@ -24,11 +27,14 @@ class CustomUser(User):
 class Borrowing(models.Model):
     Borrow = models.DateField()
     Expected_return_date = models.DateField()
-    Actual_return_date = models.DateField()
+    Actual_return_date = models.DateField(null=True, blank=True)
     Book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="Borrowing")
     User = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="Borrowing"
     )
+
+    def __str__(self):
+        return f"{self.User.username} = name: {self.User.first_name}, last name: {self.User.last_name}"
 
 
 class Payment(models.Model):
@@ -59,3 +65,6 @@ class Payment(models.Model):
         max_length=255, blank=True, null=True, help_text="ID of stripe payment session"
     )
     money_to_pay = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.status} {self.type}"
