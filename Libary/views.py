@@ -20,8 +20,6 @@ class BookViewSet(viewsets.ModelViewSet):
 
         if self.action in ["create", "update", "partial_update", "destroy"]:
             self.permission_classes = [IsAdminUser]
-        else:
-            self.permission_classes = [IsAuthenticated]
         return super(BookViewSet, self).get_permissions()
 
 
