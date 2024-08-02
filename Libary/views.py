@@ -1,12 +1,14 @@
 from rest_framework import viewsets
 
-from Libary.models import Book, CustomUser, Borrowing, Payment
+from Libary.models import Book, Borrowing, Payment
 from Libary.serializers import (
     BookSerializer,
     CustomUserSerializer,
     BorrowingSerializer,
     PaymentSerializer,
 )
+
+from user.models import User
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -15,8 +17,15 @@ class BookViewSet(viewsets.ModelViewSet):
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
+    queryset = User.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return User.objects.all()
+        else:
+            return User.objects.filter(id=user.id)
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
