@@ -1,11 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from Libary.models import Book, Borrowing, Payment
+from Libary.models import Book, Payment
 from Libary.serializers import (
     BookSerializer,
     CustomUserSerializer,
-    BorrowingSerializer,
     PaymentSerializer,
 )
 
@@ -34,12 +33,6 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             return User.objects.all()
         else:
             return User.objects.filter(id=user.id)
-
-
-class BorrowingViewSet(viewsets.ModelViewSet):
-    queryset = Borrowing.objects.all()
-    serializer_class = BorrowingSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class PaymentViewSet(viewsets.ModelViewSet):
