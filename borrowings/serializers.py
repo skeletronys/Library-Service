@@ -7,15 +7,9 @@ from borrowings.models import Borrowing
 from user.models import User
 
 
-class UserFLNameSerializer(serializers.ModelSerializer):  # FL = first_name + last_name
-    class Meta:
-        model = User
-        fields = ("first_name", "last_name")
-
-
 class BorrowingSerializer(serializers.ModelSerializer):
     Book = serializers.SlugRelatedField(queryset=Book.objects.all(), slug_field="name")
-    User = UserFLNameSerializer(read_only=True)
+    User = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Borrowing
