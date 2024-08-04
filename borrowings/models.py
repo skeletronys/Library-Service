@@ -13,7 +13,7 @@ class Borrowing(models.Model):
     book = models.ForeignKey(
         "Libary.Book", on_delete=models.CASCADE, related_name="Borrowing"
     )
-    bser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Borrowing")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Borrowing")
 
     def __str__(self):
         return f"{self.User.first_name} {self.User.last_name}"
