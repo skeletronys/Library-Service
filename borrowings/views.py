@@ -7,5 +7,8 @@ from borrowings.serializers import BorrowingSerializer
 
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
-    serializer_class = BorrowingSerializer
     permission_classes = [IsAuthenticated]
+    serializer_class = BorrowingSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
