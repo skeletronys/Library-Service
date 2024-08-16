@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import serializers
 from Libary.models import Book
 from borrowings.models import Borrowing
@@ -10,7 +12,7 @@ class BorrowingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrowing
         fields = "__all__"
-        read_only_fields = ["user"]
+        read_only_fields = ["user", "actual_return_date"]
 
     def get_user(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
@@ -50,3 +52,17 @@ class BorrowingSerializer(serializers.ModelSerializer):
         )
 
         return borrowing
+
+    def return_borrowing(self, instance):
+        if instance.actual_return_date is not None:
+            raise serializers.ValidationError(
+                "This borrowing has already been returned."
+            )
+
+        instance.actual_return_date = datetime.date.today()
+
+        instance.book.inventory += 1
+        instance.book.save()
+
+        instance.save()
+        return instance
