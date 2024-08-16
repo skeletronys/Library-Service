@@ -20,10 +20,11 @@ class BorrowingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Expected return date cannot be before borrow date."
             )
-        if "actual_return_date" in data and data["actual_return_date"] < data["borrow"]:
-            raise serializers.ValidationError(
-                "Actual return date cannot be before borrow date."
-            )
+        if "actual_return_date" in data and data["actual_return_date"] is not None:
+            if data["actual_return_date"] < data["borrow"]:
+                raise serializers.ValidationError(
+                    "Actual return date cannot be before borrow date."
+                )
         return data
 
     def create(self, validated_data):
