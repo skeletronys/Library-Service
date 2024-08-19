@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from borrowings.models import Borrowing
 from borrowings.serializers import BorrowingSerializer
 
+from telegramBot import send_telegram_message
+
 
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
@@ -34,7 +36,16 @@ class BorrowingViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        borrowing = serializer.save(user=self.request.user)
+        message = (
+            f"New borrowing created!\n"
+            f"Id borrowing: {borrowing.id}\n"
+            f"Book: {borrowing.book.name}\n"
+            f"User: {borrowing.user.first_name} {borrowing.user.last_name}\n"
+            f"Borrow date: {borrowing.borrow}\n"
+            f"Expected return date: {borrowing.expected_return_date}"
+        )
+        send_telegram_message(message)
 
 
 class ReturnBorrowingView(views.APIView):
