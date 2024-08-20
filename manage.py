@@ -2,13 +2,6 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-import threading
-from telegramBot import start_bot
-
-
-def run_bot():
-    bot_thread = threading.Thread(target=start_bot)
-    bot_thread.start()
 
 
 def main():
@@ -23,7 +16,6 @@ def main():
             "forget to activate a virtual environment?"
         ) from exc
     execute_from_command_line(sys.argv)
-    start_bot()
 
 
 if __name__ == "__main__":
