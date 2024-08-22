@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
-from Libary.models import Book, Payment
-from borrowings.models import Borrowing
+from Libary.models import Book
 
 from user.models import User
 
@@ -25,14 +24,3 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "password",
             "is_staff",
         )
-
-
-class PaymentSerializer(serializers.ModelSerializer):
-    borrowing = serializers.SlugRelatedField(
-        queryset=Borrowing.objects.all(), slug_field="id"
-    )
-    user = serializers.PrimaryKeyRelatedField(read_only=True, source="borrowing.user")
-
-    class Meta:
-        model = Payment
-        fields = "__all__"

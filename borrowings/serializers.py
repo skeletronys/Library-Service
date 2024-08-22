@@ -2,7 +2,7 @@ import datetime
 
 from rest_framework import serializers
 from Libary.models import Book
-from borrowings.models import Borrowing
+from borrowings.models import Borrowing, Payment
 
 
 class BorrowingSerializer(serializers.ModelSerializer):
@@ -66,3 +66,14 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    borrowing = serializers.SlugRelatedField(
+        queryset=Borrowing.objects.all(), slug_field="id"
+    )
+    user = serializers.PrimaryKeyRelatedField(read_only=True, source="borrowing.user")
+
+    class Meta:
+        model = Payment
+        fields = "__all__"

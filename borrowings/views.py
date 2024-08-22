@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, views
 from rest_framework.response import Response
 
-from borrowings.models import Borrowing
-from borrowings.serializers import BorrowingSerializer
+from borrowings.models import Borrowing, Payment
+from borrowings.serializers import BorrowingSerializer, PaymentSerializer
 
 from telegramBot import send_telegram_message
 
@@ -66,3 +66,15 @@ class ReturnBorrowingView(views.APIView):
         return Response(
             {"detail": "Borrowing returned successfully."}, status=status.HTTP_200_OK
         )
+
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_staff:
+            return self.queryset.filter(borrowing__user=user)
+        return self.queryset
