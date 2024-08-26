@@ -11,7 +11,6 @@ def check_overdue_borrowings():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     logger.info("Sending message to Telegram")
-    # print(f"Running check_overdue_borrowings at {now}")
     overdue_borrowings = Borrowing.objects.filter(
         expected_return_date__lte=now, actual_return_date__isnull=True
     )
@@ -20,6 +19,7 @@ def check_overdue_borrowings():
         print(f"Found {overdue_borrowings.count()} overdue borrowings.")
         for borrowing in overdue_borrowings:
             message = (
+                f"This day: {now.strftime('%A, %B %d, %Y')}\n"
                 f"Borrowing overdue!\n"
                 f"Borrowing id: {borrowing.id}\n"
                 f"Book: {borrowing.book.name}\n"

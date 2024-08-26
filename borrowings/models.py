@@ -1,7 +1,16 @@
+from django.core.validators import URLValidator
 from django.db import models
 
 from borrowings.validators import date_limit_take_book, date_limit_return_book
 from user.models import User
+
+
+class OptionalSchemeURLValidator(URLValidator):
+    def __call__(self, value):
+        if "://" not in value:
+            # Validate as if it were http://
+            value = "http://" + value
+        super(OptionalSchemeURLValidator, self).__call__(value)
 
 
 class Borrowing(models.Model):
@@ -16,7 +25,7 @@ class Borrowing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Borrowing")
 
     def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name}"
+        return f"ID: {self.id} | Book: {self.book.name} | User: {self.user.first_name} {self.user.last_name}"
 
 
 class Payment(models.Model):
@@ -40,8 +49,12 @@ class Payment(models.Model):
     borrowing = models.ForeignKey(
         Borrowing, on_delete=models.CASCADE, related_name="payments"
     )
-    session_url = models.URLField(
-        max_length=200, blank=True, null=True, help_text="URL to stripe payment session"
+    session_url = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="URL to stripe payment session",
+        validators=[OptionalSchemeURLValidator],
     )
     session_id = models.CharField(
         max_length=255, blank=True, null=True, help_text="ID of stripe payment session"
