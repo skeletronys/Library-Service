@@ -5,9 +5,21 @@ from Libary.models import Book
 from borrowings.models import Borrowing, Payment
 
 
+class PaymentSerializer(serializers.ModelSerializer):
+    borrowing = serializers.SlugRelatedField(
+        queryset=Borrowing.objects.all(), slug_field="id"
+    )
+    user = serializers.PrimaryKeyRelatedField(read_only=True, source="borrowing.user")
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
+
+
 class BorrowingSerializer(serializers.ModelSerializer):
     book = serializers.SlugRelatedField(queryset=Book.objects.all(), slug_field="name")
     user = serializers.SerializerMethodField()
+    payments = PaymentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Borrowing
@@ -66,14 +78,3 @@ class BorrowingSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-
-
-class PaymentSerializer(serializers.ModelSerializer):
-    borrowing = serializers.SlugRelatedField(
-        queryset=Borrowing.objects.all(), slug_field="id"
-    )
-    user = serializers.PrimaryKeyRelatedField(read_only=True, source="borrowing.user")
-
-    class Meta:
-        model = Payment
-        fields = "__all__"

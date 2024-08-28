@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, views
 from rest_framework.response import Response
 
+from borrowings.app import create_stripe_session
 from borrowings.models import Borrowing, Payment
 from borrowings.serializers import BorrowingSerializer, PaymentSerializer
 
@@ -37,6 +38,7 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         borrowing = serializer.save(user=self.request.user)
+        create_stripe_session(borrowing)
         message = (
             f"New borrowing created!\n"
             f"Id borrowing: {borrowing.id}\n"
