@@ -47,7 +47,6 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         borrowing = serializer.save(user=self.request.user)
         payment = create_stripe_session(self.request, borrowing.id)
-        # create_stripe_session(borrowing, borrowing.id)
         message = (
             f"New borrowing created!\n"
             f"Id borrowing: {borrowing.id}\n"
