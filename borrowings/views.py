@@ -1,8 +1,16 @@
+import os
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.urls.base import reverse
+from django.views.generic import View
 from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, views
 from rest_framework.response import Response
+
+import stripe
 
 from borrowings.app import create_stripe_session
 from borrowings.models import Borrowing, Payment
@@ -38,7 +46,8 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         borrowing = serializer.save(user=self.request.user)
-        create_stripe_session(borrowing)
+        payment = create_stripe_session(self.request, borrowing.id)
+        # create_stripe_session(borrowing, borrowing.id)
         message = (
             f"New borrowing created!\n"
             f"Id borrowing: {borrowing.id}\n"
@@ -80,3 +89,27 @@ class PaymentViewSet(viewsets.ModelViewSet):
         if not user.is_staff:
             return self.queryset.filter(borrowing__user=user)
         return self.queryset
+
+
+class PaymentSuccessView(View):
+    def get(self, request, *args, **kwargs):
+        session_id = request.GET.get("session_id")
+        if not session_id:
+            return HttpResponse("Session ID not provided.", status=400)
+
+        session = stripe.checkout.Session.retrieve(session_id)
+        payment = get_object_or_404(Payment, session_id=session.id)
+
+        if session.payment_status == "paid":
+            payment.status = Payment.StatusType.PAID
+            payment.save()
+            return HttpResponse("Payment was successful!", status=200)
+        else:
+            return HttpResponse("Payment was not successful.", status=400)
+
+
+class PaymentCancelView(View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(
+            "Payment was canceled. You can try again later.", status=200
+        )
