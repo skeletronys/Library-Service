@@ -1,45 +1,26 @@
 import os
-from flask import Flask, jsonify, redirect
+
+from django.shortcuts import get_object_or_404
+from django.urls.base import reverse
 import stripe
 
-from borrowings.models import Payment
+from borrowings.models import Payment, Borrowing
 
-app = Flask(__name__)
 
 stripe.api_key = os.getenv("API_KEY_STRIPE", "")
 
 
-@app.route("/")
-def index():
-    return "Hello, World!"
-
-
-@app.route("/create-checkout-session", methods=["POST"])
-def create_checkout_session():
-    try:
-        session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[
-                {
-                    "price": "price_1PrqIRP12cEirxdWiV6Mwact",
-                    "quantity": 10,
-                }
-            ],
-            mode="payment",
-            success_url="http://localhost:4242/success",
-            cancel_url="http://localhost:4242/cancel",
-        )
-        return jsonify({"session_url": session.url, "session_id": session.id}), 200
-    except Exception as e:
-        return jsonify(error=str(e)), 403
-
-
-def create_stripe_session(borrowing):
+def create_stripe_session(request, borrowing_id):
+    borrowing = get_object_or_404(Borrowing, id=borrowing_id)
     total_price = (
         borrowing.book.daily_fee
         * (borrowing.expected_return_date - borrowing.borrow).days
     )
-
+    success_url = (
+        request.build_absolute_uri(reverse("borrowings:payment-success"))
+        + "?session_id={CHECKOUT_SESSION_ID}"
+    )
+    cancel_url = request.build_absolute_uri(reverse("borrowings:payment-cancel"))
     session = stripe.checkout.Session.create(
         payment_method_types=["card"],
         line_items=[
@@ -55,8 +36,8 @@ def create_stripe_session(borrowing):
             }
         ],
         mode="payment",
-        success_url="http://localhost:8000/success/",
-        cancel_url="http://localhost:8000/cancel/",
+        success_url=success_url,
+        cancel_url=cancel_url,
     )
     days_borrowed = (borrowing.expected_return_date - borrowing.borrow).days
 
@@ -70,7 +51,3 @@ def create_stripe_session(borrowing):
     )
 
     return payment
-
-
-if __name__ == "__main__":
-    app.run(port=4242)
