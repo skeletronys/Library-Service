@@ -34,6 +34,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+FINE_MULTIPLIER = 1.5
 
 # Application definition
 
