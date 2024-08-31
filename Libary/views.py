@@ -7,7 +7,7 @@ from Libary.serializers import (
     CustomUserSerializer,
 )
 
-from user.models import User
+from Libary.models import Customer
 
 
 class BookViewSet(viewsets.ModelViewSet):
@@ -23,12 +23,12 @@ class BookViewSet(viewsets.ModelViewSet):
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     serializer_class = CustomUserSerializer
-    queryset = User.objects.all()
+    queryset = Customer.objects.all()
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return User.objects.all()
+            return Customer.objects.all()
         else:
-            return User.objects.filter(id=user.id)
+            return Customer.objects.filter(id=user.id)
