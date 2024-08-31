@@ -22,6 +22,14 @@ urlpatterns = [
         ReturnBorrowingView.as_view(),
         name="return-borrowing",
     ),
-    path("success/", PaymentSuccessView.as_view(), name="payment-success"),
-    path("cancel/", PaymentCancelView.as_view(), name="payment-cancel"),
+    path(
+        "payments/success/",
+        PaymentSuccessView.as_view(),
+        name="payment-success",
+    ),
+    path(
+        "payments/cancel/",
+        PaymentCancelView.as_view(),
+        name="payment-cancel",
+    ),
 ]

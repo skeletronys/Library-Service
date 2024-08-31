@@ -1,10 +1,9 @@
-import os
+import datetime
 
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.urls.base import reverse
 from django.views.generic import View
-from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, views
@@ -12,7 +11,6 @@ from rest_framework.response import Response
 
 import stripe
 
-from borrowings.app import create_stripe_session
 from borrowings.models import Borrowing, Payment
 from borrowings.serializers import BorrowingSerializer, PaymentSerializer
 
@@ -46,7 +44,6 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         borrowing = serializer.save(user=self.request.user)
-        payment = create_stripe_session(self.request, borrowing.id)
         message = (
             f"New borrowing created!\n"
             f"Id borrowing: {borrowing.id}\n"
@@ -67,11 +64,18 @@ class ReturnBorrowingView(views.APIView):
                 {"detail": "Borrowing not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = BorrowingSerializer()
-        try:
-            serializer.return_borrowing(borrowing)
-        except serializers.ValidationError as e:
-            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        if borrowing.actual_return_date is not None:
+            return Response(
+                {"detail": "This borrowing has already been returned."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        borrowing.actual_return_date = datetime.date.today()
+
+        borrowing.book.inventory += 1
+        borrowing.book.save()
+
+        borrowing.save()
 
         return Response(
             {"detail": "Borrowing returned successfully."}, status=status.HTTP_200_OK
@@ -85,9 +89,17 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if not user.is_staff:
-            return self.queryset.filter(borrowing__user=user)
-        return self.queryset
+        if user.is_staff:
+            return Payment.objects.all()
+        return Payment.objects.filter(borrowing__user=user)
+
+    def perform_create(self, serializer):
+        borrowing = serializer.validated_data["borrowing"]
+        if borrowing.user != self.request.user:
+            raise PermissionDenied(
+                "You do not have permission to create a payment for this borrowing."
+            )
+        super().perform_create(serializer)
 
 
 class PaymentSuccessView(View):
