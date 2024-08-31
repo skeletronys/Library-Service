@@ -17,6 +17,7 @@ from pathlib import Path
 
 from celery.schedules import crontab
 from dotenv import load_dotenv
+from decimal import Decimal
 
 load_dotenv()
 
@@ -34,7 +35,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-FINE_MULTIPLIER = 1.5
+FINE_MULTIPLIER = Decimal("1.5")
 
 # Application definition
 
