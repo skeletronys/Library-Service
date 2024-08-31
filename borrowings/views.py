@@ -1,5 +1,6 @@
 import datetime
 
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
@@ -88,9 +89,17 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if not user.is_staff:
-            return self.queryset.filter(borrowing__user=user)
-        return self.queryset
+        if user.is_staff:
+            return Payment.objects.all()
+        return Payment.objects.filter(borrowing__user=user)
+
+    def perform_create(self, serializer):
+        borrowing = serializer.validated_data["borrowing"]
+        if borrowing.user != self.request.user:
+            raise PermissionDenied(
+                "You do not have permission to create a payment for this borrowing."
+            )
+        super().perform_create(serializer)
 
 
 class PaymentSuccessView(View):

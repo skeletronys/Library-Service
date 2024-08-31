@@ -11,9 +11,17 @@ from borrowings.models import Borrowing, Payment
 
 class PaymentSerializer(serializers.ModelSerializer):
     borrowing = serializers.SlugRelatedField(
-        queryset=Borrowing.objects.all(), slug_field="id"
+        queryset=Borrowing.objects.none(),
+        slug_field="id",
     )
     user = serializers.PrimaryKeyRelatedField(read_only=True, source="borrowing.user")
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs["context"]["request"].user
+        super().__init__(*args, **kwargs)
+
+        if not user.is_staff:
+            self.fields["borrowing"].queryset = Borrowing.objects.filter(user=user)
 
     class Meta:
         model = Payment
