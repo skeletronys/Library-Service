@@ -2,7 +2,7 @@ from django.core.validators import URLValidator
 from django.db import models
 
 from borrowings.validators import date_limit_take_book, date_limit_return_book
-from Libary.models import Customer
+from library.models import Customer
 
 
 class OptionalSchemeURLValidator(URLValidator):
@@ -20,7 +20,7 @@ class Borrowing(models.Model):
         null=True, blank=True, validators=[date_limit_return_book]
     )
     book = models.ForeignKey(
-        "Libary.Book", on_delete=models.CASCADE, related_name="Borrowing"
+        "library.Book", on_delete=models.CASCADE, related_name="Borrowing"
     )
     user = models.ForeignKey(
         Customer, on_delete=models.CASCADE, related_name="Borrowing"

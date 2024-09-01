@@ -1,15 +1,14 @@
 import datetime
+import stripe
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status, views
-from rest_framework.response import Response
 
-import stripe
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, views, viewsets
+from rest_framework.response import Response
 
 from borrowings.models import Borrowing, Payment
 from borrowings.serializers import BorrowingSerializer, PaymentSerializer

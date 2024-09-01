@@ -1,9 +1,7 @@
 from django.db import IntegrityError
 from rest_framework import serializers
 
-from Libary.models import Book
-
-from Libary.models import Customer
+from library.models import Book, Customer
 
 
 class BookSerializer(serializers.ModelSerializer):

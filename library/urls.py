@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
-from Libary.views import (
+from library.views import (
     BookViewSet,
     CustomUserViewSet,
 )
@@ -15,7 +15,7 @@ router = routers.DefaultRouter()
 router.register("book", BookViewSet)
 router.register("customer", CustomUserViewSet)
 
-app_name = "Libary"
+app_name = "library"
 
 urlpatterns = [
     path("", include(router.urls)),
