@@ -1,13 +1,11 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from Libary.models import Book
-from Libary.serializers import (
+from library.models import Book, Customer
+from library.serializers import (
     BookSerializer,
     CustomUserSerializer,
 )
-
-from Libary.models import Customer
 
 
 class BookViewSet(viewsets.ModelViewSet):

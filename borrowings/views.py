@@ -1,17 +1,17 @@
 import datetime
+import stripe
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import View
-from rest_framework import viewsets
+
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status, views
+from rest_framework import status, views, viewsets
 from rest_framework.response import Response
 
-import stripe
-
 from borrowings.models import Borrowing, Payment
+from borrowings.permissions import IsAdminOrOwner
 from borrowings.serializers import BorrowingSerializer, PaymentSerializer
 
 from telegramBot import send_telegram_message
@@ -19,7 +19,7 @@ from telegramBot import send_telegram_message
 
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrOwner]
     serializer_class = BorrowingSerializer
 
     def get_queryset(self):
@@ -85,7 +85,7 @@ class ReturnBorrowingView(views.APIView):
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrOwner]
 
     def get_queryset(self):
         user = self.request.user

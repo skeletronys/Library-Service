@@ -1,16 +1,12 @@
-import logging
 from celery import shared_task
 from django.utils import timezone
-from .models import Borrowing
+from borrowings.models import Borrowing
 from telegramBot import send_telegram_message
 
 
 @shared_task
 def check_overdue_borrowings():
     now = timezone.now().date()
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    logger.info("Sending message to Telegram")
     overdue_borrowings = Borrowing.objects.filter(
         expected_return_date__lte=now, actual_return_date__isnull=True
     )
@@ -33,5 +29,5 @@ def check_overdue_borrowings():
         send_telegram_message("No borrowings overdue today!")
 
 
-# celery -A Libary_Service worker -l info -P gevent
-# celery -A Libary_Service beat -l info
+# celery -A Library_Service worker -l info -P gevent
+# celery -A Library_Service beat -l info

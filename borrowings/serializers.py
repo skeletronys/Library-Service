@@ -4,8 +4,8 @@ import stripe
 from decimal import Decimal
 from django.urls.base import reverse
 from rest_framework import serializers
-from Libary.models import Book
-from Libary_Service import settings
+from library.models import Book
+from Library_Service import settings
 from borrowings.models import Borrowing, Payment
 
 
