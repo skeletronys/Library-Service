@@ -11,6 +11,7 @@ from rest_framework import status, views, viewsets
 from rest_framework.response import Response
 
 from borrowings.models import Borrowing, Payment
+from borrowings.permissions import IsAdminOrOwner
 from borrowings.serializers import BorrowingSerializer, PaymentSerializer
 
 from telegramBot import send_telegram_message
@@ -18,7 +19,7 @@ from telegramBot import send_telegram_message
 
 class BorrowingViewSet(viewsets.ModelViewSet):
     queryset = Borrowing.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrOwner]
     serializer_class = BorrowingSerializer
 
     def get_queryset(self):
@@ -84,7 +85,7 @@ class ReturnBorrowingView(views.APIView):
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminOrOwner]
 
     def get_queryset(self):
         user = self.request.user
