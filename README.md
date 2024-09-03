@@ -107,3 +107,10 @@ erDiagram
 8. **Visit the site: Open your browser and go to:**
     ```bash
     http://localhost:8000
+
+9. **Run celery tasks and redis**
+   ```bash
+   redis-server.exe
+   celery -A Library_Service worker -l info -P gevent
+   celery -A Library_Service beat -l info
+
