@@ -27,7 +27,3 @@ def check_overdue_borrowings():
     else:
         print("No borrowings overdue today.")
         send_telegram_message("No borrowings overdue today!")
-
-
-# celery -A Library_Service worker -l info -P gevent
-# celery -A Library_Service beat -l info
